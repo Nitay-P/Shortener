@@ -22,6 +22,8 @@
             <a asp-controller="User" asp-action="Index">
                 <input class="btn btn-primary" type="button" value="Register?" />
             </a>
+            <a target="_blank" href="@ViewBag.Response">Google</a>
+            <i class="bi bi-google"></i>
             @{
                 if (ViewData["Message"] != null && !string.IsNullOrEmpty(ViewData["Message"].ToString()))
                 {
