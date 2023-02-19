@@ -1,0 +1,63 @@
+﻿
+@model User
+<meta name="google-signin-client_id" content="779110421864-7atevrp0k80olikrjo4esqktiq7aa2mr.apps.googleusercontent.com">
+<div class="container" style="padding:20px">
+    <form method="post" asp-action="Login" asp-controller="User">
+        <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+        <div>
+            <div class="col-2">
+                <label asp-for="@Model.Email"></label>
+            </div>
+            <div class="col-2">
+                <input type="text" asp-for="@Model.Email" />
+            </div>
+            <div>
+                <label asp-for="@Model.Password"></label>
+            </div>
+            <div>
+                <input type="password" asp-for="@Model.Password" />
+            </div>
+            <span class="text-danger" asp-validation-for="@Model.Password"></span>
+            <button class="btn btn-primary" type="submit">Login</button>
+            <a asp-controller="User" asp-action="Index">
+                <input class="btn btn-primary" type="button" value="Register?" />
+            </a>
+            @{
+                if (ViewData["Message"] != null && !string.IsNullOrEmpty(ViewData["Message"].ToString()))
+                {
+                            <div class="bs-popover-bottom" style="border: 1px solid red;">
+                        @ViewData["Message"]
+                            </div> 
+                }
+            }   
+        </div>
+    </form>
+</div>
+ @*<div class="g-signin2" data-onsuccess="onSignIn"></div>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+
+<script>
+function onSignIn(googleUser) {
+    var profile = googleUser.getBasicProfile();
+    var model = new Object();
+
+    model.Username = profile.getName();
+    model.Email = profile.getEmail();
+
+
+
+        jQuery.ajax({
+            type: "POST",
+            url: "@Url.Action("Login")",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ user: model }),
+            success: function (data) {
+                alert(data);
+            },
+            failure: function (errMsg) {
+                alert(errMsg);
+            }
+        });
+}
+</script>*@
