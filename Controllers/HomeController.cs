@@ -9,7 +9,7 @@ using WebApplication1.Services.Interfaces;
 namespace WebApplication1.Controllers
 {
     [Route("/")]
-    [Authorize(Policy = "MustBeARegisteredUser")]
+    //[Authorize(Policy = "MustBeARegisteredUser")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -24,9 +24,13 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("")]
-        public IActionResult Index(string url)
+        public async Task<IActionResult> Index(MainPageViewModel mainPageViewModel)
         {
-            return View("Index",url);
+            if (User.Identity.IsAuthenticated)
+            {
+                mainPageViewModel.User = await _userService.GetUserByEmail(User.GetEmail());
+            }
+            return View("Index",mainPageViewModel);
         }
         [HttpGet("links")]
         public async Task<IActionResult> Links(User user)
@@ -40,9 +44,9 @@ namespace WebApplication1.Controllers
             {
                 return RedirectToAction("Index", "Home", new { url = _urlService.GetOriginalUrl(url)});
             }
-            return RedirectToAction("Index", "Home",new { url = $"{HttpContext.GetFullPath()}{_urlService.GetShortenedUrl(url, User.GetEmail())}"});
+            return RedirectToAction("Index", "Home",new MainPageViewModel {Url = $"{HttpContext.GetFullPath()}{_urlService.GetShortenedUrl(url, User.GetEmail())}"});
             }
-
+         
         
         [HttpGet("s/{url}")]
         public IActionResult a(string url)
@@ -52,7 +56,7 @@ namespace WebApplication1.Controllers
             {
                 return RedirectToAction("Index","Home");
             }
-            return Redirect(oldUrl);
+            return RedirectPermanent(oldUrl);
         }
         
     }

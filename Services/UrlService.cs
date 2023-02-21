@@ -7,10 +7,13 @@ namespace WebApplication1.Services
     public class UrlService : IUrlService
     {
         private readonly UrlContext _urlContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UrlService(UrlContext urlContext)
+        public UrlService(UrlContext urlContext, IHttpContextAccessor httpContextAccessor)
         {
             _urlContext = urlContext;
+            _httpContextAccessor = httpContextAccessor;
+
         }
 
         public IEnumerable<UrlInfo> GetLinks()
@@ -37,24 +40,32 @@ namespace WebApplication1.Services
         public string GetShortenedUrl(string url,string userEmail)
         {
             //var users = _userContext.Users;
-            var urlInfo = _urlContext.Urls.FirstOrDefault(u => u.Url.Equals(url));
+            var user = _urlContext.Users.FirstOrDefault(u => u.Email == userEmail);
+            var urlInfo = _urlContext.Urls.FirstOrDefault(u => u.Url.Equals(url) && u.UserId == null);
+            if (user != null)
+            {
+                urlInfo = _urlContext.Urls.FirstOrDefault(u => u.Url.Equals(url) && u.UserId == user.Id);
+            }
             if (urlInfo == null)
             {
-                urlInfo = new UrlInfo { Url = url, ShortenedUrl = StringToChars()};
+                urlInfo = new UrlInfo { Url = url, ShortenedUrl = StringToChars() };
                 while (_urlContext.Urls.FirstOrDefault(u => u.ShortenedUrl.Equals(urlInfo.ShortenedUrl)) != null)
                 {
                     urlInfo.ShortenedUrl = StringToChars();
-                }              
-                var user = _urlContext.Users.FirstOrDefault(u => u.Email == userEmail);
-                urlInfo.UserId = user.Id;
-                _urlContext.Urls.Add(urlInfo);
-                if(user.Links == null)
-                {
-                    user.Links = new List<UrlInfo>();
                 }
-                 user.Links.Append(urlInfo);
-                _urlContext.SaveChanges();
+                if(user != null)
+                {
+                    urlInfo.UserId = user.Id;
+                    if (user.Links == null)
+                    {
+                        user.Links = new List<UrlInfo>();
+                    }
+                    user.Links.Append(urlInfo);             
+                }
+                _urlContext.Urls.Add(urlInfo);
             }
+           
+            _urlContext.SaveChanges();
             return urlInfo.ShortenedUrl;
         }
         public string ApiGetShortenedUrl(string url)
@@ -73,13 +84,18 @@ namespace WebApplication1.Services
             }
             return urlInfo.ShortenedUrl;
         }
-        public string Redirect(string ShortenedUrl)
+        public string Redirect(string shortenedUrl)
         {
-            var originalUrlInfo = _urlContext.Urls.FirstOrDefault(u => u.ShortenedUrl.Equals(ShortenedUrl));
+            var originalUrlInfo = _urlContext.Urls.FirstOrDefault(u => u.ShortenedUrl.Equals(shortenedUrl));
             if (originalUrlInfo == null)
             {
                 return "";
             }
+            if(originalUrlInfo.ClicksInfo == null)
+            {
+                originalUrlInfo.ClicksInfo = new List<ClickInfo>();
+            }
+            originalUrlInfo.ClicksInfo.Add(new ClickInfo { ClickDateTimeUtc = DateTime.UtcNow,IpAddress = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress});
             originalUrlInfo.Clicks++;
             _urlContext.SaveChanges();
             return originalUrlInfo.Url;

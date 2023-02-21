@@ -1,4 +1,5 @@
-﻿@model string
+﻿@using WebApplication1.Extensions;
+@model MainPageViewModel
 @*@{
     ViewData["Title"] = "Home Page";
 }
@@ -43,16 +44,65 @@
                         <input type="url" class="form-control" id="url" name="url" placeholder="https://www.example.com" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Shorten</button>
+                     @if (!User.Identity.IsAuthenticated)
+        {
+            <a class="btn btn-primary" asp-action="Login" asp-controller="User">Sign In</a>
+            <a class="btn btn-primary" asp-action="Register" asp-controller="User">Register</a>
+        }
                 </form>
-                @if (!String.IsNullOrEmpty(Model))
+               
+                @if (!String.IsNullOrEmpty(Model.Url))
                 {
                     <div class="mt-4">
                         <p>Your shortened URL:</p>
-                        <a href="@Model" target="_blank">@Model</a>
+                        <a href="@Model.Url" target="_blank">@Model.Url</a>
                     </div>
                 }
+                
             </div>
+            
         </div>
+    </div>
+    <div style="padding-top:40px;padding-bottom:150px">
+        @if (User.Identity.IsAuthenticated)
+        {
+        <h2 style="text-align:center">Previous Links</h2>
+            <table class="table table-hover table-dark">
+                <thead>
+                    <tr>
+                        <th>
+                            Original Url
+                        </th>
+                        <th>
+                            Shortened Url
+                        </th>
+                        <th>
+                            Clicks
+                        </th>           
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.User != null)
+                    {
+                        @foreach (var item in Model.User.Links)
+                        {
+                            <tr>
+                                <td>
+                    @Html.DisplayFor(modelItem => item.Url)
+                </td>
+                <td>
+                          <a href=@($"{item.GetHref(Context)}")>@($"{item.GetHref(Context)}")</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Clicks)
+                </td>                
+            </tr>
+                        }
+                    }
+    </tbody>
+</table>
+        }
+        
     </div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>

@@ -19,6 +19,7 @@ namespace WebApplication1
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddSingleton<IUrlService,UrlService>();
             builder.Services.AddSingleton<IUserService, UserService>();
 
@@ -40,7 +41,7 @@ namespace WebApplication1
             builder.Services.AddAuthentication("CookieAuth").AddCookie("CookieAuth", options =>
             {
                 options.Cookie.Name = "CookieAuth";
-                options.LoginPath = "/user/register";
+                options.LoginPath = "/user/Login";
                 options.ExpireTimeSpan = TimeSpan.FromDays(99999);
             });
             builder.Services.AddAuthorization(options =>

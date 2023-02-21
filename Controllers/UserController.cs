@@ -31,6 +31,12 @@ namespace WebApplication1.Controllers
         {
             if (ModelState.IsValid || user.Links == null)
             {
+                if(user.ConfirmPassword != user.Password)
+                {
+                    ModelState.AddModelError("ConfirmPassword", "The password and confirmation password do not match.");
+                    GetGoogleCode();
+                    return RedirectToAction("Register",new User());
+                }
                 if (await _userService.CreateUser(user))
                 {
                     await CreateCookie(user);
@@ -38,8 +44,9 @@ namespace WebApplication1.Controllers
                 }
                 else
                 {
-                    ViewData["Message"] = "User Already Exists!";
-                    return View("Index");
+                    ModelState.AddModelError("UserExists","This User already exists!");
+                    GetGoogleCode();
+                    return View("Register",new User());
                 }
             }
             return View("Index");
@@ -47,11 +54,17 @@ namespace WebApplication1.Controllers
         [HttpGet("Login")]
         public IActionResult Login()
         {
-            var clientId = _config.GetSection("Authentication").GetSection("Google")["ClientId"]; ;
+           /* var clientId = _config.GetSection("Authentication").GetSection("Google")["ClientId"]; ;
             var url = "https://localhost:7211/user/signin-google";
             var response = GoogleAuth.GetAuthUrl(clientId, url);
-            ViewBag.response = response;
-            return View();
+            ViewBag.response = response;*/
+           GetGoogleCode();
+            return View(new User ());
+        }
+        public IActionResult Register()
+        {
+            GetGoogleCode();
+            return View(new User());
         }
         [HttpPost("Login")]
         public async Task<IActionResult> Login(User user)
@@ -64,14 +77,14 @@ namespace WebApplication1.Controllers
             else
             {
                 ViewData["Message"] = "Login failed! Please check your Email or Password!";
-                return View("Login");
+                return View("Login",new User());
             }
         }
         [HttpPost("Logout")]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync("CookieAuth");
-            return RedirectToAction("Index", "User");
+            return RedirectToAction("Index", "Home",new User());
         }
        /* [HttpGet("login-google")]
         public async Task<IActionResult> GoogleLogin()
@@ -117,6 +130,13 @@ namespace WebApplication1.Controllers
             var identity = new ClaimsIdentity(claims, "CookieAuth");
             ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(identity);
             await HttpContext.SignInAsync("CookieAuth", claimsPrincipal);                           
+        }
+        private async Task GetGoogleCode()
+        {
+            var clientId = _config.GetSection("Authentication").GetSection("Google")["ClientId"]; ;
+            var url = "https://localhost:7211/user/signin-google";
+            var response = GoogleAuth.GetAuthUrl(clientId, url);
+            ViewBag.response = response;
         }
     }
 }
