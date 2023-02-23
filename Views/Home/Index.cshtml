@@ -78,7 +78,10 @@
                         </th>
                         <th>
                             Clicks
-                        </th>           
+                        </th>
+                        <th>
+                            Log
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -95,7 +98,10 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Clicks)
-                </td>                
+                </td>
+                <td>
+                    <a href=@($"{Context.GetCurrentFullPath()}/user/log/{item.ShortenedUrl}")>Log</a>
+                </td>
             </tr>
                         }
                     }

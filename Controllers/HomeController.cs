@@ -49,14 +49,16 @@ namespace WebApplication1.Controllers
          
         
         [HttpGet("s/{url}")]
-        public IActionResult a(string url)
+        public async Task< IActionResult> MyRedirect(string url)
         {
-            string oldUrl = _urlService.Redirect(url);
+            //user friendly: if shortened url doesn't exist I redirect him to home page
+            string oldUrl = await _urlService.Redirect(url);
             if(string.IsNullOrEmpty(oldUrl))
             {
-                return RedirectToAction("Index","Home");
+               return RedirectToAction("Index","Home");
             }
-            return RedirectPermanent(oldUrl);
+             return Redirect(oldUrl);
+
         }
         
     }

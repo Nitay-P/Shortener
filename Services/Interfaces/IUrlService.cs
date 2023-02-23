@@ -7,8 +7,9 @@ namespace WebApplication1.Services.Interfaces
     {
         public IEnumerable<UrlInfo> GetLinks();
         public string GetShortenedUrl(string url, string userEmail);
+        public IEnumerable<ClickInfo> GetClickInfo();
         public string ApiGetShortenedUrl(string url);
         public string GetOriginalUrl(string shortenedUrl);
-        public string Redirect(string url);
+        public Task<string> Redirect(string url);
     }
 }

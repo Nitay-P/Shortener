@@ -12,5 +12,9 @@ namespace WebApplication1.Extensions
         {
             return $"{httpContext.GetFullPath()}{urlInfo.ShortenedUrl}";
         }
+        public static string GetCurrentFullPath(this HttpContext context)
+        {
+            return $"{context.Request.Scheme}://{context.Request.Host}";
+        }
     }
 }

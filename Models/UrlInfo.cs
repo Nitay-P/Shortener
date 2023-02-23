@@ -11,6 +11,6 @@ namespace WebApplication1.Models
         public string ShortenedUrl { get; set; }
         public int Clicks { get; set; } = 0;
         public int? UserId { get; set; }
-        public virtual ICollection<ClickInfo> ClicksInfo { get; set; }
+        public virtual ICollection<ClickInfo>? ClicksInfo { get; set; }
     }
 }

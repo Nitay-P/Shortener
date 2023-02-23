@@ -16,8 +16,13 @@ namespace WebApplication1.Services
 
         }
 
+        public IEnumerable<ClickInfo> GetClickInfo()
+        {
+            return _urlContext.ClicksInfo;
+        }
         public IEnumerable<UrlInfo> GetLinks()
         {
+            _urlContext.Urls.Include(u => u.ClicksInfo);
             return _urlContext.Urls;
         }
         public string GetOriginalUrl(string shortenedUrl)
@@ -84,7 +89,7 @@ namespace WebApplication1.Services
             }
             return urlInfo.ShortenedUrl;
         }
-        public string Redirect(string shortenedUrl)
+        public async Task <string> Redirect(string shortenedUrl)
         {
             var originalUrlInfo = _urlContext.Urls.FirstOrDefault(u => u.ShortenedUrl.Equals(shortenedUrl));
             if (originalUrlInfo == null)
@@ -97,7 +102,7 @@ namespace WebApplication1.Services
             }
             originalUrlInfo.ClicksInfo.Add(new ClickInfo { ClickDateTimeUtc = DateTime.UtcNow,IpAddress = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress});
             originalUrlInfo.Clicks++;
-            _urlContext.SaveChanges();
+            await _urlContext.SaveChangesAsync();
             return originalUrlInfo.Url;
         }
         private string StringToChars()

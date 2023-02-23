@@ -7,6 +7,7 @@ namespace WebApplication1.Models
     {
         public virtual DbSet<UrlInfo> Urls { get; set; }
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<ClickInfo> ClicksInfo { get; set; }
         public UrlContext(DbContextOptions<UrlContext> options) : base(options)
         {
 

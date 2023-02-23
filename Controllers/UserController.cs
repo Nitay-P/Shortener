@@ -8,6 +8,8 @@ using WebApplication1.Models;
 using WebApplication1.Services.Interfaces;
 using GoogleAuthentication.Services;
 using Newtonsoft.Json.Linq;
+using WebApplication1.Services;
+using WebApplication1.Extensions;
 
 namespace WebApplication1.Controllers
 {
@@ -16,10 +18,12 @@ namespace WebApplication1.Controllers
     {
         private readonly IUserService _userService;
         private readonly IConfiguration _config;
-        public UserController(IUserService userService,IConfiguration config)
+        private readonly IUrlService _urlService;
+        public UserController(IUserService userService,IConfiguration config,IUrlService urlService)
         {
             _userService = userService;
             _config = config;
+            _urlService = urlService;
         }
         [HttpGet("register")]
         public IActionResult Index()
@@ -137,6 +141,18 @@ namespace WebApplication1.Controllers
             var url = "https://localhost:7211/user/signin-google";
             var response = GoogleAuth.GetAuthUrl(clientId, url);
             ViewBag.response = response;
+        }
+        [HttpGet("log/{shortenedUrl}")]
+        public async Task<IActionResult> Log(string shortenedUrl)
+        {
+            //I don't want other users to access log files that aren't theirs.
+            if (User.Identity.IsAuthenticated && await _userService.GetUserByEmail(User.GetEmail())!= null)
+            {
+                var b = _urlService.GetClickInfo().ToList();
+                var urlInfo = _urlService.GetLinks().FirstOrDefault(l => l.ShortenedUrl == shortenedUrl);
+                return View("Log", urlInfo);
+            }
+            return BadRequest();
         }
     }
 }
