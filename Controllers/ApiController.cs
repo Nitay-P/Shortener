@@ -13,20 +13,26 @@ namespace WebApplication1.Controllers
     {
         // GET: api/<ApiController>
         private readonly IUrlService _urlService;
+        private readonly IUserService _userService;
 
-        public ApiController(IUrlService urlService)
+        public ApiController(IUrlService urlService,IUserService userService)
         {
             _urlService = urlService;
+            _userService = userService;
         }
         
         [HttpGet("shorten/")]
-        public ActionResult<string> Shorten([FromQuery]string url)
+        public async Task <ActionResult<string>> Shorten([FromQuery]string url, [FromQuery]string username, [FromQuery]string password, [FromQuery] string email)
         {
             if (url.Contains("https://localhost:"))
             {
-                return BadRequest();
+                return BadRequest();            
             }
-            return Ok($"{HttpContext.GetFullPath()}{_urlService.ApiGetShortenedUrl(url)}");
+            if (!await _userService.CheckIfUserExists(new Models.User {Username = username,Password = password, Email = email }))
+            {
+                return StatusCode(StatusCodes.Status403Forbidden);
+            }
+            return Ok($"{HttpContext.GetFullPath()}{_urlService.GetShortenedUrl(url,email)}");
         }    
         [HttpGet("original/")]
         public string GetOriginalUrl([FromQuery]string url)

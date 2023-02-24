@@ -11,5 +11,7 @@ namespace WebApplication1.Services.Interfaces
         public string ApiGetShortenedUrl(string url);
         public string GetOriginalUrl(string shortenedUrl);
         public Task<string> Redirect(string url);
-    }
+
+
+	}
 }

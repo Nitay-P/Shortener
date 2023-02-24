@@ -9,6 +9,8 @@ using WebApplication1.Models;
 using WebApplication1.Services;
 using WebApplication1.Services.Interfaces;
 
+using Microsoft.AspNetCore.Builder;
+
 namespace WebApplication1
 {
     public class Program
@@ -53,7 +55,7 @@ namespace WebApplication1
                 );
             });
 
-            var app = builder.Build();
+			var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -62,7 +64,8 @@ namespace WebApplication1
                 app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
-            }
+				
+			}
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

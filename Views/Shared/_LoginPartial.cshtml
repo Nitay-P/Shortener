@@ -2,7 +2,7 @@
 
 @if(User.Identity.IsAuthenticated){
     <form method="post" asp-controller="User" asp-action="Logout">
-        Welcome @User.Identity.Name
+        Welcome <a asp-action="Profile" asp-controller="User">@User.Identity.Name</a>
         <button type="submit" class ="m1-2 btn btn-link">Logout</button>
     </form>
 }

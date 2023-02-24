@@ -153,6 +153,42 @@ namespace WebApplication1.Controllers
                 return View("Log", urlInfo);
             }
             return BadRequest();
+            
         }
-    }
+        [HttpGet("profile")]
+        public async Task<IActionResult> Profile(User user)
+        {
+            if(User.Identity.IsAuthenticated)
+            {
+                return View(await _userService.GetUserByEmail(User.GetEmail()));
+            }
+            return StatusCode(401);
+        }
+		[HttpPost("profile")]
+		public async Task<IActionResult> UpdateProfile(User user)
+		{
+			if (User.Identity.IsAuthenticated)
+			{
+				if(ModelState.IsValid)
+                {
+					if(await _userService.CheckIfUserExists(user))
+                    {
+						ModelState.AddModelError("UserExists", "This User already exists!");
+                        return View("profile",user);
+					}
+					await _userService.UpdateUser(
+                        User.GetEmail(),
+                        user.Name,
+                        user.LastName,
+                        user.Username,
+                        user.Email,
+                        user.Password
+                        );
+                   await HttpContext.SignOutAsync("CookieAuth");
+                   await CreateCookie(user);
+                }
+			}
+            return RedirectToAction("Index", "Home");
+		}
+	}
 }

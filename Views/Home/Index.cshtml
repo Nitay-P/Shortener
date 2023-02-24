@@ -91,7 +91,7 @@
                         {
                             <tr>
                                 <td>
-                    @Html.DisplayFor(modelItem => item.Url)
+                    <a href=@($"{item.Url}")>@item.Url</a>
                 </td>
                 <td>
                           <a href=@($"{item.GetHref(Context)}")>@($"{item.GetHref(Context)}")</a>

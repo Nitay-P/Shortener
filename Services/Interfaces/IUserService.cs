@@ -8,5 +8,7 @@ namespace WebApplication1.Services.Interfaces
         public Task<bool> Login(User user);
         public Task<string> GetUsername(string email);
         public Task<User> GetUserByEmail(string email);
-    }
+        public Task UpdateUser(string originalUserEmail, string name, string lastName, string username, string email, string password);
+		public Task<bool> CheckIfUserExists(User user);
+	}
 }

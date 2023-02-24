@@ -54,5 +54,15 @@ namespace WebApplication1.Services.Interfaces
         {
             return await _urlContext.Users.Include(l => l.Links).FirstOrDefaultAsync(u => u.Email == email);
         }
+        public async Task UpdateUser(string originalUserEmail, string name, string lastName, string username,string email, string password)
+        {
+			var originalUser = await GetUserByEmail(originalUserEmail);
+			originalUser.Name = name;
+            originalUser.LastName = lastName;
+			originalUser.Email = email;
+			originalUser.Username = username;
+			originalUser.Password = password;
+            await _urlContext.SaveChangesAsync();
+		}
     }
 }

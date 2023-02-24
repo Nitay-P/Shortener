@@ -117,6 +117,7 @@ namespace WebApplication1.Services
             }
 
             return new String(stringChars);
+            
         }
     }
 }
