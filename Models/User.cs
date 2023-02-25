@@ -10,7 +10,7 @@ namespace WebApplication1.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string? LastName { get; set; }
-        [Required] public string Username { get; set; }
+        //[Required] public string Username { get; set; }
         [EmailAddress]
         public string Email { get; set; }
 

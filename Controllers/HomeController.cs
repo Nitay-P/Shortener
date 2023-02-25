@@ -35,7 +35,11 @@ namespace WebApplication1.Controllers
         [HttpGet("links")]
         public async Task<IActionResult> Links(User user)
         {
-            return View(await _userService.GetUserByEmail(User.GetEmail()));
+            if (User.Identity.IsAuthenticated)
+            {
+                return View(await _userService.GetUserByEmail(User.GetEmail()));
+            }
+            return RedirectToAction("Index");
         }
         [HttpPost,Route("")]
         public IActionResult GetShortenedUrl(string url)

@@ -51,16 +51,15 @@
         }
                 </form>
                
-                @if (!String.IsNullOrEmpty(Model.Url))
+                @if(!String.IsNullOrEmpty(Model.Url))
                 {
                     <div class="mt-4">
                         <p>Your shortened URL:</p>
                         <a href="@Model.Url" target="_blank">@Model.Url</a>
                     </div>
                 }
-                
-            </div>
-            
+           
+            </div>         
         </div>
     </div>
     <div style="padding-top:40px;padding-bottom:150px">

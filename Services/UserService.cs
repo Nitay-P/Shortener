@@ -26,8 +26,7 @@ namespace WebApplication1.Services.Interfaces
         public async Task<bool> CheckIfUserExists(User user)
         {
             var emailRes = await _urlContext.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
-            var usernameRes = await _urlContext.Users.FirstOrDefaultAsync(u => u.Username == user.Username);
-            if(emailRes != null || usernameRes != null)
+            if(emailRes != null)
             {
                 return true;
             }
@@ -43,26 +42,35 @@ namespace WebApplication1.Services.Interfaces
                 return false;
             return true;
         }
-        public async Task<string> GetUsername(string email)
+/*        public async Task<string> GetUsername(string email)
         {
            var user = await _urlContext.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
                 return "";
             return user.Username;
-        }
+        }*/
         public async Task<User> GetUserByEmail(string email)
         {
             return await _urlContext.Users.Include(l => l.Links).FirstOrDefaultAsync(u => u.Email == email);
         }
-        public async Task UpdateUser(string originalUserEmail, string name, string lastName, string username,string email, string password)
+        public async Task UpdateUser(string originalUserEmail, string name, string lastName, string email, string password)
         {
 			var originalUser = await GetUserByEmail(originalUserEmail);
 			originalUser.Name = name;
             originalUser.LastName = lastName;
 			originalUser.Email = email;
-			originalUser.Username = username;
 			originalUser.Password = password;
             await _urlContext.SaveChangesAsync();
 		}
-    }
+        //if validation passes, return true
+		public async Task<bool> ApiCheckLogin(User user)
+        {
+			var emailRes = await _urlContext.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
+            if(user.Email == emailRes.Email && user.Password == emailRes.Password)
+            {
+                return true;
+            }
+			return false;
+		}
+	}
 }

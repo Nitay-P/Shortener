@@ -28,7 +28,7 @@ namespace WebApplication1.Controllers
             {
                 return BadRequest();            
             }
-            if (!await _userService.CheckIfUserExists(new Models.User {Username = username,Password = password, Email = email }))
+            if (await _userService.ApiCheckLogin(new Models.User {Password = password, Email = email }) == false )
             {
                 return StatusCode(StatusCodes.Status403Forbidden);
             }

@@ -1,4 +1,5 @@
-﻿@*
+﻿@using WebApplication1.Extensions;
+@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
@@ -65,12 +66,13 @@
 		<input type="text" id="lastname" name="lastname" required>
 		<label for="@Model.Email">Email:</label>
 		<input type="email" id="email" name="email" required>
-		<label for="@Model.Username">Username:</label>
-		<input type="text" id="username" name="username" required>
-		<label for="@Model.Password">Password:</label>
-		<input type="password" id="password" name="password" required>
-		<label for="@Model.ConfirmPassword">Confirm Password:</label>
-		<input type="password" id="confirmpassword" name="confirmpassword" required>
+		@if (!User.IsThirdParty())
+		{
+			<label for="@Model.Password">Password:</label>
+			<input type="password" id="password" name="password" required>
+			<label for="@Model.ConfirmPassword">Confirm Password:</label>
+			<input type="password" id="confirmpassword" name="confirmpassword" required>			
+		}
 		<button type="submit">Update</button>
 		<div class="col-xl-12" style="margin-top:40px;">
 			@foreach (var modeleState in ViewData.ModelState.Values)

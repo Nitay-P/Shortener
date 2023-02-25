@@ -8,5 +8,9 @@ namespace WebApplication1.Extensions
         {
             return claimsPrincipal.FindFirstValue(ClaimTypes.Email);
         }
+        public static bool IsThirdParty(this ClaimsPrincipal claimsPrincipal)
+        {
+            return bool.Parse(claimsPrincipal.FindFirstValue("ThirdParty"));
+        }
     }
 }

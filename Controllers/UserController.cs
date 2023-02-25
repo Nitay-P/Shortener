@@ -10,6 +10,7 @@ using GoogleAuthentication.Services;
 using Newtonsoft.Json.Linq;
 using WebApplication1.Services;
 using WebApplication1.Extensions;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace WebApplication1.Controllers
 {
@@ -108,32 +109,50 @@ namespace WebApplication1.Controllers
             var token = await GoogleAuth.GetAuthAccessToken(code, clientId, clientSecret, url);
             var userProfile = await GoogleAuth.GetProfileResponseAsync(token.AccessToken.ToString());
             JObject result = JObject.Parse(userProfile);
-            var userEmail = result["email"];
-            var userUsername = result["name"];
+            var userEmail = result["email"].ToString();
+            var userUsername = result["name"].ToString();
+            var userLastname = result["family_name"].ToString();
+            var userName = result["given_name"].ToString();
+            //var name
 
-            User user = new User{Username = userUsername.ToString(), Email = userEmail.ToString(),Password = ""};
+            User user = new User{Email = userEmail,Password = "",Name = userName,LastName = userLastname};
             if (!await _userService.CreateUser(user))
             {
-                await _userService.Login(user);
+
+                if(!await _userService.Login(user))
+                {
+                    ModelState.AddModelError("UserExists", "This User already exists!");
+                    return RedirectToAction("Register");
+                }
             }
-            await CreateCookie(user);
+
+            await ThirdPartyCreateCookie(user);
 
             return RedirectToAction("Index","Home");
         }
         private async Task CreateCookie(User user)
         {
-            if(string.IsNullOrEmpty(user.Username))
-            {
-               user.Username = await _userService.GetUsername(user.Email);
-            }
             var claims = new List<Claim> {
-            new Claim(ClaimTypes.Name, $"{user.Username}"),
+            new Claim(ClaimTypes.Name, $"{user.Name}"),
             new Claim(ClaimTypes.Email,$"{user.Email}"),
+            new Claim("ThirdParty","False"),
             new Claim("UserRegisterStatus","Registered")
             };
             var identity = new ClaimsIdentity(claims, "CookieAuth");
             ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(identity);
             await HttpContext.SignInAsync("CookieAuth", claimsPrincipal);                           
+        }
+        private async Task ThirdPartyCreateCookie(User user)
+        {
+            var claims = new List<Claim> {
+            new Claim(ClaimTypes.Name, $"{user.Name}"),
+            new Claim(ClaimTypes.Email,$"{user.Email}"),
+            new Claim("ThirdParty","True"),
+            new Claim("UserRegisterStatus","Registered")
+            };
+            var identity = new ClaimsIdentity(claims, "CookieAuth");
+            ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(identity);
+            await HttpContext.SignInAsync("CookieAuth", claimsPrincipal);
         }
         private async Task GetGoogleCode()
         {
@@ -169,23 +188,37 @@ namespace WebApplication1.Controllers
 		{
 			if (User.Identity.IsAuthenticated)
 			{
-				if(ModelState.IsValid)
+				if(ModelState.IsValid || (User.IsThirdParty() && ModelState["Password"].RawValue == null && ModelState["ConfirmPassword"].RawValue == null))
                 {
-					if(await _userService.CheckIfUserExists(user))
+					 if(await _userService.CheckIfUserExists(user) && (user.Email != User.GetEmail()))
+                     {
+						  ModelState.AddModelError("UserExists", "This User already exists!");
+                          return View("profile",user);
+					 }
+                    await HttpContext.SignOutAsync("CookieAuth");
+                    if (User.IsThirdParty())
                     {
-						ModelState.AddModelError("UserExists", "This User already exists!");
-                        return View("profile",user);
-					}
-					await _userService.UpdateUser(
+                        await _userService.UpdateUser(
                         User.GetEmail(),
                         user.Name,
                         user.LastName,
-                        user.Username,
                         user.Email,
-                        user.Password
+                        ""
                         );
-                   await HttpContext.SignOutAsync("CookieAuth");
-                   await CreateCookie(user);
+                        await ThirdPartyCreateCookie(user);
+                    }
+                    else
+                    {
+                        await _userService.UpdateUser(
+                         User.GetEmail(),
+                         user.Name,
+                         user.LastName,
+                         user.Email,
+                         user.Password
+                         );
+                        await CreateCookie(user);
+                    }
+                    
                 }
 			}
             return RedirectToAction("Index", "Home");
