@@ -10,7 +10,7 @@ namespace WebApplication1.Services.Interfaces
         public Task<User> GetUserByEmail(string email);
         public Task UpdateUser(string originalUserEmail, string name, string lastName, string email, string password);
 		public Task<bool> CheckIfUserExists(User user);
-		public Task<bool> ApiCheckLogin(User user);
+        public Task<bool> ApiCheckLogin(string email);
 
 	}
 }

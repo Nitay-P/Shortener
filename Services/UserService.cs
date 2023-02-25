@@ -63,14 +63,16 @@ namespace WebApplication1.Services.Interfaces
             await _urlContext.SaveChangesAsync();
 		}
         //if validation passes, return true
-		public async Task<bool> ApiCheckLogin(User user)
+		public async Task<bool> ApiCheckLogin(string email)
         {
-			var emailRes = await _urlContext.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
-            if(user.Email == emailRes.Email && user.Password == emailRes.Password)
+			var emailRes = await _urlContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if(emailRes == null || email != emailRes.Email)
             {
-                return true;
+                return false;
             }
-			return false;
+
+                return true;
+
 		}
 	}
 }

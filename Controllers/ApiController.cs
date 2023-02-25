@@ -22,13 +22,13 @@ namespace WebApplication1.Controllers
         }
         
         [HttpGet("shorten/")]
-        public async Task <ActionResult<string>> Shorten([FromQuery]string url, [FromQuery]string username, [FromQuery]string password, [FromQuery] string email)
+        public async Task <ActionResult<string>> Shorten([FromQuery]string url, [FromQuery] string email)
         {
             if (url.Contains("https://localhost:"))
             {
                 return BadRequest();            
             }
-            if (await _userService.ApiCheckLogin(new Models.User {Password = password, Email = email }) == false )
+            if (await _userService.ApiCheckLogin(email) == false )
             {
                 return StatusCode(StatusCodes.Status403Forbidden);
             }

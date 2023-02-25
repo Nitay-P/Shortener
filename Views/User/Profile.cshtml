@@ -75,10 +75,16 @@
 		}
 		<button type="submit">Update</button>
 		<div class="col-xl-12" style="margin-top:40px;">
+			@if (User.IsThirdParty())
+			{
+				ViewData.ModelState.Remove("Password");
+				ViewData.ModelState.Remove("ConfirmPassword");
+			}
 			@foreach (var modeleState in ViewData.ModelState.Values)
 			{
+				
 				foreach (var error in modeleState.Errors)
-				{
+				{					
 					<h5 style="color:red;margin-top:8px;">@error.ErrorMessage</h5>
 				}
 			}
