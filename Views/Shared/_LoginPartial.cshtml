@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 
-@if(User.Identity.IsAuthenticated){
+@if(User.Identity!.IsAuthenticated){
     <form method="post" asp-controller="User" asp-action="Logout">
         Welcome <a asp-action="Profile" asp-controller="User">@User.Identity.Name</a>
         <button type="submit" class ="m1-2 btn btn-link">Logout</button>

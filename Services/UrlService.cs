@@ -29,11 +29,11 @@ namespace WebApplication1.Services
         {
             string originalUrl = "";
 
-           string shorterUrl = shortenedUrl.Substring(shortenedUrl.LastIndexOf('/') + 1);
+           string shorterUrl = shortenedUrl[(shortenedUrl.LastIndexOf('/') + 1)..];
            var urlInfo = _urlContext.Urls.FirstOrDefault(u => u.ShortenedUrl == shorterUrl);
             if (urlInfo != null)
             {
-                originalUrl = urlInfo.Url;   
+                originalUrl = urlInfo.Url!;   
             }
             else
             {
@@ -61,17 +61,14 @@ namespace WebApplication1.Services
                 if(user != null)
                 {
                     urlInfo.UserId = user.Id;
-                    if (user.Links == null)
-                    {
-                        user.Links = new List<UrlInfo>();
-                    }
-                    user.Links.Append(urlInfo);             
+                    user.Links ??= new List<UrlInfo>();
+                    user.Links.Add(urlInfo);             
                 }
                 _urlContext.Urls.Add(urlInfo);
             }
            
             _urlContext.SaveChanges();
-            return urlInfo.ShortenedUrl;
+            return urlInfo.ShortenedUrl!;
         }
         public string ApiGetShortenedUrl(string url)
         {
@@ -87,7 +84,7 @@ namespace WebApplication1.Services
                 _urlContext.Urls.Add(urlInfo);
                 _urlContext.SaveChanges();
             }
-            return urlInfo.ShortenedUrl;
+            return urlInfo.ShortenedUrl!;
         }
         public async Task <string> Redirect(string shortenedUrl)
         {
@@ -96,14 +93,11 @@ namespace WebApplication1.Services
             {
                 return "";
             }
-            if(originalUrlInfo.ClicksInfo == null)
-            {
-                originalUrlInfo.ClicksInfo = new List<ClickInfo>();
-            }
-            originalUrlInfo.ClicksInfo.Add(new ClickInfo { ClickDateTimeUtc = DateTime.UtcNow,IpAddress = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress});
+            originalUrlInfo.ClicksInfo ??= new List<ClickInfo>();
+            originalUrlInfo.ClicksInfo.Add(new ClickInfo { ClickDateTimeUtc = DateTime.UtcNow,IpAddress = _httpContextAccessor.HttpContext!.Connection.RemoteIpAddress});
             originalUrlInfo.Clicks++;
             await _urlContext.SaveChangesAsync();
-            return originalUrlInfo.Url;
+            return originalUrlInfo.Url!;
         }
         private string StringToChars()
         {

@@ -32,15 +32,16 @@ namespace WebApplication1.Controllers
             return View();
         }
         [HttpPost("register")]
-        public async Task<IActionResult> CreateUser(User user)
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> CreateUser(User user)
         {
-            if (ModelState.IsValid || user.Links == null)
+            if (ModelState.IsValid)
             {
                 if(user.ConfirmPassword != user.Password)
                 {
                     ModelState.AddModelError("ConfirmPassword", "The password and confirmation password do not match.");
                     GetGoogleCode();
-                    return RedirectToAction("Register",new User());
+                    return View("Register",new User());
                 }
                 if (await _userService.CreateUser(user))
                 {
@@ -54,8 +55,9 @@ namespace WebApplication1.Controllers
                     return View("Register",new User());
                 }
             }
-            return View("Index");
-        }
+			GetGoogleCode();
+			return View("Register", new User());
+		}
         [HttpGet("Login")]
         public IActionResult Login()
         {
@@ -72,21 +74,24 @@ namespace WebApplication1.Controllers
             return View(new User());
         }
         [HttpPost("Login")]
-        public async Task<IActionResult> Login(User user)
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Login(User user)
         {
             if(await _userService.Login(user))
             {
-                await CreateCookie(user);
+                await CreateCookie(await _userService.GetUserByEmail(user.Email!));
                 return RedirectToAction("Index", "Home");
             }
             else
             {
+                GetGoogleCode();
                 ViewData["Message"] = "Login failed! Please check your Email or Password!";
-                return View("Login",new User());
+                return View("Login",user);
             }
         }
         [HttpPost("Logout")]
-        public async Task<IActionResult> Logout()
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync("CookieAuth");
             return RedirectToAction("Index", "Home",new User());
@@ -109,13 +114,12 @@ namespace WebApplication1.Controllers
             var token = await GoogleAuth.GetAuthAccessToken(code, clientId, clientSecret, url);
             var userProfile = await GoogleAuth.GetProfileResponseAsync(token.AccessToken.ToString());
             JObject result = JObject.Parse(userProfile);
-            var userEmail = result["email"].ToString();
-            var userUsername = result["name"].ToString();
-            var userLastname = result["family_name"].ToString();
-            var userName = result["given_name"].ToString();
+            var userEmail = result["email"]!.ToString();
+            var userLastname = result["family_name"]!.ToString();
+            var userName = result["given_name"]!.ToString();
             //var name
 
-            User user = new User{Email = userEmail,Password = "",Name = userName,LastName = userLastname};
+            User user = new() { Email = userEmail,Password = "",Name = userName,LastName = userLastname};
             if (!await _userService.CreateUser(user))
             {
 
@@ -139,7 +143,7 @@ namespace WebApplication1.Controllers
             new Claim("UserRegisterStatus","Registered")
             };
             var identity = new ClaimsIdentity(claims, "CookieAuth");
-            ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(identity);
+            ClaimsPrincipal claimsPrincipal = new(identity);
             await HttpContext.SignInAsync("CookieAuth", claimsPrincipal);                           
         }
         private async Task ThirdPartyCreateCookie(User user)
@@ -151,10 +155,10 @@ namespace WebApplication1.Controllers
             new Claim("UserRegisterStatus","Registered")
             };
             var identity = new ClaimsIdentity(claims, "CookieAuth");
-            ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(identity);
+            ClaimsPrincipal claimsPrincipal = new(identity);
             await HttpContext.SignInAsync("CookieAuth", claimsPrincipal);
         }
-        private async Task GetGoogleCode()
+        private void GetGoogleCode()
         {
             var clientId = _config.GetSection("Authentication").GetSection("Google")["ClientId"]; ;
             var url = "https://localhost:7211/user/signin-google";
@@ -165,10 +169,14 @@ namespace WebApplication1.Controllers
         public async Task<IActionResult> Log(string shortenedUrl)
         {
             //I don't want other users to access log files that aren't theirs.
-            if (User.Identity.IsAuthenticated && await _userService.GetUserByEmail(User.GetEmail())!= null)
+            if (User.Identity!.IsAuthenticated && await _userService.GetUserByEmail(User.GetEmail())!= null)
             {
                 var b = _urlService.GetClickInfo().ToList();
                 var urlInfo = _urlService.GetLinks().FirstOrDefault(l => l.ShortenedUrl == shortenedUrl);
+                if(urlInfo!.ClicksInfo == null)
+                {
+                    urlInfo.ClicksInfo = new List<ClickInfo>();
+                }
                 return View("Log", urlInfo);
             }
             return BadRequest();
@@ -177,20 +185,30 @@ namespace WebApplication1.Controllers
         [HttpGet("profile")]
         public async Task<IActionResult> Profile(User user)
         {
-            if(User.Identity.IsAuthenticated)
+            if(User.Identity!.IsAuthenticated)
             {
                 return View(await _userService.GetUserByEmail(User.GetEmail()));
             }
             return StatusCode(401);
         }
 		[HttpPost("profile")]
+		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> UpdateProfile(User user)
 		{
-			if (User.Identity.IsAuthenticated)
+			if (User.Identity!.IsAuthenticated)
 			{
-				if(ModelState.IsValid || (User.IsThirdParty() && ModelState["Password"].RawValue == null && ModelState["ConfirmPassword"].RawValue == null))
+				if(ModelState.IsValid || (User.IsThirdParty() && ModelState["Password"]!.RawValue == null && ModelState["ConfirmPassword"]!.RawValue == null))
                 {
-					 if(await _userService.CheckIfUserExists(user) && (user.Email != User.GetEmail()))
+                    if(string.IsNullOrEmpty(user.Name) && string.IsNullOrEmpty(user.LastName) && string.IsNullOrEmpty(user.Email) && string.IsNullOrEmpty(user.Password) && string.IsNullOrEmpty(user.ConfirmPassword)) {
+						return View("Profile", user);
+					}
+					if ((user.Password != null && user.ConfirmPassword != null) && user.ConfirmPassword != user.Password)
+					{
+						ModelState.AddModelError("ConfirmPassword", "The password and confirmation password do not match.");
+						return View("profile", user);
+					}
+
+					if (await _userService.CheckIfUserExists(user) && (user.Email != User.GetEmail()))
                      {
 						  ModelState.AddModelError("UserExists", "This User already exists!");
                           return View("profile",user);
@@ -200,9 +218,9 @@ namespace WebApplication1.Controllers
                     {
                         await _userService.UpdateUser(
                         User.GetEmail(),
-                        user.Name,
-                        user.LastName,
-                        user.Email,
+                        user.Name!,
+                        user.LastName!,
+                        user.Email!,
                         ""
                         );
                         await ThirdPartyCreateCookie(user);
@@ -211,14 +229,18 @@ namespace WebApplication1.Controllers
                     {
                         await _userService.UpdateUser(
                          User.GetEmail(),
-                         user.Name,
-                         user.LastName,
-                         user.Email,
-                         user.Password
+                         user.Name!,
+                         user.LastName!,
+                         user.Email!,
+                         user.Password!
                          );
                         await CreateCookie(user);
                     }
                     
+                }
+                else
+                {
+                    return View("Profile",user);
                 }
 			}
             return RedirectToAction("Index", "Home");

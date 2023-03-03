@@ -19,8 +19,9 @@ namespace WebApplication1.Services.Interfaces
             if(await CheckIfUserExists(user) == true) 
                 return false;
 
-            _urlContext.Users.Add(user);
-            _urlContext.SaveChanges();
+            user.Links ??= new List<UrlInfo>();
+            await _urlContext.Users.AddAsync(user);
+            await _urlContext.SaveChangesAsync();
             return true;
         }
         public async Task<bool> CheckIfUserExists(User user)
@@ -49,14 +50,14 @@ namespace WebApplication1.Services.Interfaces
                 return "";
             return user.Username;
         }*/
-        public async Task<User> GetUserByEmail(string email)
+        public async Task<User?> GetUserByEmail(string email)
         {
             return await _urlContext.Users.Include(l => l.Links).FirstOrDefaultAsync(u => u.Email == email);
         }
         public async Task UpdateUser(string originalUserEmail, string name, string lastName, string email, string password)
         {
 			var originalUser = await GetUserByEmail(originalUserEmail);
-			originalUser.Name = name;
+			originalUser!.Name = name;
             originalUser.LastName = lastName;
 			originalUser.Email = email;
 			originalUser.Password = password;

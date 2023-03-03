@@ -6,11 +6,11 @@ namespace WebApplication1.Extensions
     {
         public static string GetEmail(this ClaimsPrincipal claimsPrincipal)
         {
-            return claimsPrincipal.FindFirstValue(ClaimTypes.Email);
+            return claimsPrincipal.FindFirstValue(ClaimTypes.Email)!;
         }
         public static bool IsThirdParty(this ClaimsPrincipal claimsPrincipal)
         {
-            return bool.Parse(claimsPrincipal.FindFirstValue("ThirdParty"));
+            return bool.Parse(claimsPrincipal.FindFirstValue("ThirdParty")!);
         }
     }
 }

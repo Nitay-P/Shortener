@@ -29,7 +29,7 @@
             </a>
             
             @{
-                if (ViewData["Message"] != null && !string.IsNullOrEmpty(ViewData["Message"].ToString()))
+                if (ViewData["Message"] != null && !string.IsNullOrEmpty(ViewData["Message"]!.ToString()))
                 {
                     <div class="bs-popover-bottom" style="border: 1px solid red;">
                         @ViewData["Message"]

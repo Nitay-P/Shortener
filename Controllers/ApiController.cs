@@ -35,9 +35,14 @@ namespace WebApplication1.Controllers
             return Ok($"{HttpContext.GetFullPath()}{_urlService.GetShortenedUrl(url,email)}");
         }    
         [HttpGet("original/")]
-        public string GetOriginalUrl([FromQuery]string url)
+        public ActionResult<string> GetOriginalUrl([FromQuery]string url)
         {
-            return _urlService.GetOriginalUrl(url);
+            string result = _urlService.GetOriginalUrl(url);
+            if (result.StartsWith("This"))
+            {
+                return BadRequest();
+            }
+            return Ok(result);
         }
     }
 }

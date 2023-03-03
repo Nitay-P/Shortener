@@ -1,7 +1,9 @@
-﻿using GoogleAuthentication.Services;
+﻿
+using GoogleAuthentication.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+
 using WebApplication1.Extensions;
 using WebApplication1.Models;
 using WebApplication1.Services.Interfaces;
@@ -16,17 +18,19 @@ namespace WebApplication1.Controllers
         private readonly IUrlService _urlService;
         private readonly IUserService _userService;
 
+
         public HomeController(ILogger<HomeController> logger, IUrlService urlService,IUserService userService)
         {
             _logger = logger;
             _urlService = urlService;
             _userService = userService;   
+
         }
 
         [HttpGet("")]
         public async Task<IActionResult> Index(MainPageViewModel mainPageViewModel)
         {
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity!.IsAuthenticated)
             {
                 mainPageViewModel.User = await _userService.GetUserByEmail(User.GetEmail());
             }
@@ -35,13 +39,14 @@ namespace WebApplication1.Controllers
         [HttpGet("links")]
         public async Task<IActionResult> Links(User user)
         {
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity!.IsAuthenticated)
             {
                 return View(await _userService.GetUserByEmail(User.GetEmail()));
             }
             return RedirectToAction("Index");
         }
-        [HttpPost,Route("")]
+        [HttpPost("")]
+        [ValidateAntiForgeryToken]
         public IActionResult GetShortenedUrl(string url)
         {
             if (url.Contains($"{HttpContext.GetFullPath()}"))
@@ -61,7 +66,7 @@ namespace WebApplication1.Controllers
             {
                return RedirectToAction("Index","Home");
             }
-             return Redirect(oldUrl);
+            return Redirect(oldUrl);            
         }
         
     }
