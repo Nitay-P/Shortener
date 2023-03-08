@@ -44,7 +44,6 @@ namespace WebApplication1.Services
 
         public string GetShortenedUrl(string url,string userEmail)
         {
-            //var users = _userContext.Users;
             var user = _urlContext.Users.FirstOrDefault(u => u.Email == userEmail);
             var urlInfo = _urlContext.Urls.FirstOrDefault(u => u.Url.Equals(url) && u.UserId == null);
             if (user != null)

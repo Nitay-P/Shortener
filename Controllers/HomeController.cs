@@ -11,7 +11,6 @@ using WebApplication1.Services.Interfaces;
 namespace WebApplication1.Controllers
 {
     [Route("/")]
-    //[Authorize(Policy = "MustBeARegisteredUser")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

@@ -99,18 +99,12 @@
 								</svg>
 								Register with Google
 							</a>
+								@if (ViewData.ModelState["UserExists"] != null)
+								{
+									<span style="color:red;margin-top:8px; white-space: pre-line;">@ViewData.ModelState["UserExists"]!.Errors.First().ErrorMessage</span>
+								}
 							</div>
 						</form>
-						<div class="col-xl-12" style="margin-top:40px;">
-						@*@foreach (var modeleState in ViewData.ModelState.Values)
-						{
-							foreach (var error in modeleState.Errors)
-							{
-								<h5 style="color:red;margin-top:8px;">@error.ErrorMessage</h5>
-							}
-						}*@
-						
-						</div>
 					</div>
 				</div>
 			</div>
@@ -119,92 +113,3 @@
 </body>
 </html>
 
-@*<!DOCTYPE html>
-<html>
-<head>
-	<title>Register and Login Page</title>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
-	<style type="text/css">
-		body {
-			font-family: Arial, sans-serif;
-		}
-
-		form {
-			display: inline-block;
-			margin: 0 10px;
-			vertical-align: top;
-		}
-
-		label, input {
-			display: block;
-			margin-bottom: 10px;
-		}
-
-		button {
-			margin-top: 10px;
-			padding: 5px 10px;
-			background-color: #4CAF50;
-			color: white;
-			border: none;
-			border-radius: 4px;
-			cursor: pointer;
-		}
-
-		.google-btn {
-			display: inline-block;
-			vertical-align: top;
-			margin-top: 30px;
-		}
-
-			.google-btn a {
-				display: block;
-				background-color: #4285F4;
-				color: white;
-				text-align: center;
-				padding: 10px 20px;
-				text-decoration: none;
-				border-radius: 4px;
-				box-shadow: 0 2px 4px 0 rgba(0,0,0,0.25);
-				cursor: pointer;
-			}
-	</style>
-</head>
-<body>
-	<h1>Register Page</h1>
-	<form id="register-form" asp-action="CreateUser" method="post">
-		<h2>Register</h2>
-		<label for="@Model.Name">First Name:</label>
-		<input type="text" id="name" name="name" required>
-		<label for="@Model.LastName">Last Name:</label>
-		<input type="text" id="lastname" name="lastname" required>
-		<label for="@Model.Email">Email:</label>
-		<input type="email" id="email" name="email" required>
-		<label for="@Model.Password">Password:</label>
-		<input type="password" id="password" name="password" required>
-		<label for="@Model.ConfirmPassword">Confirm Password:</label>
-		<input type="password" id="confirmpassword" name="confirmpassword" required>
-		<button type="submit">Register</button>
-		<div class="col-xl-12" style="margin-top:40px;">
-        @foreach (var modeleState in ViewData.ModelState.Values)
-         {
-            foreach (var error in modeleState.Errors)
-             {
-                <h5 style="color:red;margin-top:8px;">@error.ErrorMessage</h5>
-             }
-          }
-     </div>
-	</form>
-
-	<div class="google-btn">
-		<a target="_blank" href="@ViewBag.Response" class="btn btn-primary">
-			<i class="fab fa-google"></i> Register with Google
-		</a>
-	</div>
-	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-	<script src="https://kit.fontawesome.com/7eaf39b04d.js" crossorigin="anonymous"></script>
-</body>
-</html>
-*@

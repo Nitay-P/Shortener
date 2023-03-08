@@ -1,31 +1,5 @@
 ﻿@using WebApplication1.Extensions;
 @model MainPageViewModel
-@*@{
-    ViewData["Title"] = "Home Page";
-}
-
-<div>
-    <form asp-action="GetShortenedUrl" method="post" ac>
-    <input name="url" type="url" placeholder="Enter your link."/>
-    <button type="submit" class="btn-primary">Shorten</button>
-    </form>
-</div>
-@if(!String.IsNullOrEmpty(Model))
-{
-    <div>       
-            @if (Model.Contains("/s/"))
-            {
-                <span style="font-size:x-large">Shortened URL: 
-                 @Model</span>
-            }
-            else{
-            <span style="font-size:x-large">Original Url: 
-                @Model</span>
-            }     
-    </div>
-}*@
-
-
 
 <!DOCTYPE html>
 <html>

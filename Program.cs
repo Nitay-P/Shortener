@@ -34,12 +34,7 @@ namespace WebApplication1
                     .AllowAnyMethod()
                     .AllowAnyHeader());
             });
-            /*builder.Services.AddAuthentication().AddGoogle(GoogleOptions =>
-            {
-                GoogleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-                GoogleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-                GoogleOptions.CallbackPath = "/signin-google";
-            });*/
+
             builder.Services.AddAuthentication("CookieAuth").AddCookie("CookieAuth", options =>
             {
                 options.Cookie.Name = "CookieAuth";
@@ -66,18 +61,11 @@ namespace WebApplication1
                 app.UseHsts();
 				
 			}
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCors("CorsPolicy");
-            //app.UseRouting();
-
             app.UseAuthentication();
             app.UseAuthorization();
-            /*app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");*/
-
             app.MapControllers();
             app.Run();
         }

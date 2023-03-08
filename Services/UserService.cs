@@ -43,13 +43,6 @@ namespace WebApplication1.Services.Interfaces
                 return false;
             return true;
         }
-/*        public async Task<string> GetUsername(string email)
-        {
-           var user = await _urlContext.Users.FirstOrDefaultAsync(u => u.Email == email);
-            if (user == null)
-                return "";
-            return user.Username;
-        }*/
         public async Task<User?> GetUserByEmail(string email)
         {
             return await _urlContext.Users.Include(l => l.Links).FirstOrDefaultAsync(u => u.Email == email);

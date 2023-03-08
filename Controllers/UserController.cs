@@ -61,10 +61,6 @@ namespace WebApplication1.Controllers
         [HttpGet("Login")]
         public IActionResult Login()
         {
-           /* var clientId = _config.GetSection("Authentication").GetSection("Google")["ClientId"]; ;
-            var url = "https://localhost:7211/user/signin-google";
-            var response = GoogleAuth.GetAuthUrl(clientId, url);
-            ViewBag.response = response;*/
            GetGoogleCode();
             return View(new User ());
         }
@@ -96,15 +92,7 @@ namespace WebApplication1.Controllers
             await HttpContext.SignOutAsync("CookieAuth");
             return RedirectToAction("Index", "Home",new User());
         }
-       /* [HttpGet("login-google")]
-        public async Task<IActionResult> GoogleLogin()
-        {
-            var clientId = _config.GetSection("Authentication").GetSection("Google")["ClientId"]; ;
-            var url = "https://localhost:7211/user/signin-google";
-            var response = GoogleAuth.GetAuthUrl(clientId,url);
-            ViewBag.response = response;
-            return View();
-        }*/
+
         [HttpGet("signin-google")]
         public async Task<IActionResult> GoogleLoginCallback(string code)
         {
